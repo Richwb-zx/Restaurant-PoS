@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Richwb/Restaurant-PoS/issues"
   },
-  "homepage": "https://github.com/Richwb/Restaurant-PoS#readme"
+  "homepage": "https://github.com/Richwb/Restaurant-PoS#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
