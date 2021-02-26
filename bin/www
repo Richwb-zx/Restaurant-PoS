@@ -11,7 +11,10 @@ const http = require('http');
 /**
  * Get port from environment and store in Express.
  */
-app.set('port', process.env.PORT);
+
+const port = process.env.PORT || 3000;
+
+app.set('port', port);
 
 /**
  * Create HTTP server.
