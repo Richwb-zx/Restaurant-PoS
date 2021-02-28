@@ -52,3 +52,5 @@ const Users = sequelize.define(
     }
     
 );
+
+module.export = Model;
