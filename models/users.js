@@ -35,11 +35,11 @@ const Users = sequelize.define(
     },
     updated_on: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     deactivated_on: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     active: {
         type: Sequelize.BOOLEAN,
@@ -53,4 +53,4 @@ const Users = sequelize.define(
     
 );
 
-module.export = Model;
+module.exports = Users;

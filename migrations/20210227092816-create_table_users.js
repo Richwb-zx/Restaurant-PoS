@@ -35,11 +35,11 @@ module.exports = {
         },
         updated_on: {
           type: Sequelize.INTEGER,
-          allowNull: false
+          allowNull: true
         },
         deactivated_on: {
           type: Sequelize.INTEGER,
-          allowNull: false
+          allowNull: true
         },
         active: {
           type: Sequelize.BOOLEAN,
