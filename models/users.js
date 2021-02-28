@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const sequelize = require('./connection.js');
 
 
-module.exports = sequelize.define(
+const Users = sequelize.define(
     'users', 
     {
     id: {
