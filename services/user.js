@@ -1,23 +1,22 @@
 const userModel = require('../models/users.js');
 
 const User = class User{
-    constructor(username, password){
+    constructor(username, pwHash){
         this.userName = username;
-        this.password = password;
     }
 
-    async authenticate(){
+    async getUser(){
         return await userModel
             .findAll({
                 raw: true,
                 where: {
                     user_name: this.userName, 
-                    password: this.password, 
-                    active: 0
-                }
+                    active: 1
+                },
             })
             .then(result => {
-                return (result.length > 0 ? true : false);
+                console.log(result[0]);
+                return (result.length > 0 ? result[0] : false);
             })
             .catch(error => {
                 console.log(error);

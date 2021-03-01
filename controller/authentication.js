@@ -7,8 +7,8 @@ const Autentication = class Authentication{
     }
 
     user(){
-        const userService = new user(this.account, this.password);
-        userService.authenticate();
+        const userService = new user(this.account);
+        userService.getUser();
     }
 
 }
