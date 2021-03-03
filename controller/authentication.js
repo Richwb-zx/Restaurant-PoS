@@ -8,9 +8,8 @@ const Autentication = class Authentication{
     }
 
     async user(){
-
+        const userService = new user(this.account);
         const syncGetUser = new Promise((resolve, reject) =>{
-            const userService = new user(this.account);
             resolve(userService.getUser());
         });
         
@@ -22,10 +21,11 @@ const Autentication = class Authentication{
                 console.log(error);
             });
         
-        if(!userData && !this.bcryptCompare(userData.password)){
+        if(!userData || !this.bcryptCompare(userData.password)){
             return false;
         }
 
+        return userService.setSession();
 
     }
 
