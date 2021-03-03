@@ -22,11 +22,9 @@ const Autentication = class Authentication{
                 console.log(error);
             });
         
-        if(!userData){
+        if(!userData && !this.bcryptCompare(userData.password)){
             return false;
         }
-
-        const pwCheck = this.bcryptCompare(userData.password);
 
 
     }
