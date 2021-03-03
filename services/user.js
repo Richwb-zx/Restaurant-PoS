@@ -24,7 +24,7 @@ const User = class User{
     }
 
     setSession(){
-        return jwt.sign(this.userName, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: env.node_sess_life });
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
     }
 }
 
