@@ -1,4 +1,5 @@
 const userModel = require('../models/users.js');
+const jwt = require('jsonwebtoken');
 
 const User = class User{
     constructor(username, pwHash){
@@ -20,6 +21,10 @@ const User = class User{
             .catch(error => {
                 console.log(error);
             });  
+    }
+
+    setSession(){
+        return jwt.sign(this.userName, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: env.node_sess_life });
     }
 }
 
