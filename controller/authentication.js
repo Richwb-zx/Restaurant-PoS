@@ -16,20 +16,19 @@ const Autentication = class Authentication{
         
         const userData = await syncGetUser
             .then(userData => {
-                if(!userData){
-                    return false;
-                }else{
-                    return userData;
-                }
-
+                return userData;
             })
             .catch(error => {
                 console.log(error);
             });
         
-       const pwCheck = this.bcryptCompare(userData.password);
-       
-        
+        if(!userData){
+            return false;
+        }
+
+        const pwCheck = this.bcryptCompare(userData.password);
+
+
     }
 
     bcryptHash(){
