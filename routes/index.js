@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const authentication = require('../controller/authentication.js');
-const bcryptjs = require('bcryptjs');
 
 router.get('/', (req, res) =>{
 
