@@ -9,8 +9,20 @@ router.get('/', (req, res) =>{
 
 router.post('/login', async (req, res) =>{
     
+    let returnMsg = 'An error has occured';
+
     const authenticate = new authentication(req.query.userName, req.query.password);
-    await authenticate.user();
+    const token = await authenticate.user();
+    
+    if(token !== false){
+        const sessLifeMs = process.env.node_sess_life * 1000;
+        res.cookie('token', token, {maxAge: sessLifeMs});
+        returnMsg = 'login successful';
+    }else{
+        returnMsg = 'Invalid Username or password';
+    }
+    
+    res.send(returnMsg);
 });
 
 router.post('/logout', (req, res) =>{
