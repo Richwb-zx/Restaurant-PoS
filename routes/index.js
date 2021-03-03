@@ -14,8 +14,7 @@ router.post('/login', async (req, res) =>{
     const token = await authenticate.user();
     
     if(token !== false){
-        const sessLifeMs = process.env.node_sess_life * 1000;
-        res.cookie('token', token, {maxAge: sessLifeMs});
+        res.cookie('token', token, {maxAge: process.env.node_sess_life});
         returnMsg = 'login successful';
     }else{
         returnMsg = 'Invalid Username or password';
@@ -30,6 +29,10 @@ router.post('/logout', (req, res) =>{
 
 router.post('/register', (req, res) =>{
  
+});
+
+router.get('/test', (req, res) =>{
+    res.send('test!!!!!!!!!!!!!!!!!!!!!!!!');
 });
 
 module.exports = router;
