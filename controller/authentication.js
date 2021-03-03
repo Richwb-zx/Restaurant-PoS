@@ -7,19 +7,41 @@ const Autentication = class Authentication{
         this.password = password;
     }
 
-    user(){
-        const userService = new user(this.account);
-        userService.getUser();
+    async user(){
+
+        const syncGetUser = new Promise((resolve, reject) =>{
+            const userService = new user(this.account);
+            resolve(userService.getUser());
+        });
+        
+        const userData = await syncGetUser
+            .then(userData => {
+                if(!userData){
+                    return false;
+                }else{
+                    return userData;
+                }
+
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        
+       const pwCheck = this.bcryptCompare(userData.password);
+       
+        
     }
 
     bcryptHash(){
-        return bcrypt.hashSync(this.password, bcrypt.genSaltSync(13));
+        return bcryptjs.hashSync(this.password, bcryptjs.genSaltSync(13));
     }
 
     bcryptCompare(pwHash){
-        return bcrypt.compareSync(this.password, hash); // true
+        return bcryptjs.compareSync(this.password, pwHash);
     }
 
+    
+    
 }
 
 module.exports = Autentication;
