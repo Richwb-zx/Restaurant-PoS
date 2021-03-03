@@ -4,7 +4,6 @@ const checkSession = (req, res, next) => {
     
     const token = req.cookies.token;
     const path = req.path;
-    console.log(token,process.env.node_sess_secret);
 
     if(!token && path == '/login'){
         next();
@@ -27,6 +26,12 @@ const checkSession = (req, res, next) => {
                         console.log(error);
                 }
             }else if(decoded){
+                if(decoded.exp - (Date.now()/1000) <= 300){
+                    const token = jwt.sign({username: decoded.username}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
+                    res.cookie('token', token, {maxAge: process.env.node_sess_life});
+	            
+                }
+
                 switch(path){
                     case '/login':
                         res.redirect('/test');    
@@ -35,8 +40,7 @@ const checkSession = (req, res, next) => {
                         next();
                 }
             }
-        });
-        
+        });   
     }
 }
 
