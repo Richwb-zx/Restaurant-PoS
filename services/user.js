@@ -5,8 +5,8 @@ const User = class User{
         this.userName = username;
     }
 
-    async getUser(){
-        return await userModel
+    getUser(){
+        return userModel
             .findAll({
                 raw: true,
                 where: {
@@ -15,7 +15,6 @@ const User = class User{
                 },
             })
             .then(result => {
-                console.log(result[0]);
                 return (result.length > 0 ? result[0] : false);
             })
             .catch(error => {
