@@ -9,24 +9,14 @@ const Autentication = class Authentication{
 
     async user(){
         const userService = new user(this.account);
-        const syncGetUser = new Promise((resolve, reject) =>{
-            resolve(userService.getUser());
-        });
-        
-        const userData = await syncGetUser
-            .then(userData => {
-                return userData;
-            })
-            .catch(error => {
-                console.log(error);
-            });
-        
+        const userData = await userService.getUser()
+
         if(!userData || !this.bcryptCompare(userData.password)){
             return false;
         }
 
         return userService.setSession();
-
+        
     }
 
     bcryptHash(){
