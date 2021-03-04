@@ -31,8 +31,4 @@ router.post('/register', (req, res) =>{
  
 });
 
-router.get('/test', (req, res) =>{
-    res.send('test!!!!!!!!!!!!!!!!!!!!!!!!');
-});
-
 module.exports = router;
