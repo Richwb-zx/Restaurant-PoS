@@ -6,17 +6,21 @@ const User = class User{
         this.userName = username;
     }
 
-    getUser(){
+    getUser(checkActive = true){
         return new Promise ((resolve, reject) => {
+            const whereStatement = {user_name: this.userName};
+
+            if(checkActive === true){
+                whereStatement.active = 1;
+            }
+
             userModel
                 .findAll({
                     raw: true,
-                    where: {
-                        user_name: this.userName, 
-                        active: 1
-                    },
+                    where: whereStatement,
                 })
                 .then(result => {
+                    console.log(result);
                     return resolve (result.length > 0 ? result[0] : false);
                 })
                 .catch(error => {
