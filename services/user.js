@@ -7,20 +7,22 @@ const User = class User{
     }
 
     getUser(){
-        return userModel
-            .findAll({
-                raw: true,
-                where: {
-                    user_name: this.userName, 
-                    active: 1
-                },
-            })
-            .then(result => {
-                return (result.length > 0 ? result[0] : false);
-            })
-            .catch(error => {
-                console.log(error);
-            });  
+        return new Promise ((resolve, reject) => {
+            userModel
+                .findAll({
+                    raw: true,
+                    where: {
+                        user_name: this.userName, 
+                        active: 1
+                    },
+                })
+                .then(result => {
+                    return resolve (result.length > 0 ? result[0] : false);
+                })
+                .catch(error => {
+                    return reject(error);
+                });  
+        });
     }
 
     setSession(){
