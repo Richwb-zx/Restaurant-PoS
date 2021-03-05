@@ -20,7 +20,6 @@ const User = class User{
                     where: whereStatement,
                 })
                 .then(result => {
-                    console.log(result);
                     return resolve (result.length > 0 ? result[0] : false);
                 })
                 .catch(error => {
@@ -31,6 +30,28 @@ const User = class User{
 
     setSession(){
         return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
+    }
+
+    createUser(pwHash){
+        return userModel
+            .create({user_name: this.userName, password: pwHash, active: 1})
+            .then(user => {
+                return [{msg: 'Your account has been created', status: true},{httpStatus: 200}];
+            })
+            .catch(error => {
+                const returnInfo = [];
+                switch(error.errors[0].validatorKey){
+                    case 'not_unique':
+                        returnInfo.push({msg: 'An Account with this name already exists.', status: false},{httpStatus: 200});
+                        break;
+                    case 'is_null':
+                    default:
+                        returnInfo.push({msg: 'An error has occured: Unable to process request, admin have been notified', status: false},{httpStatus:500});
+                        break;
+                };
+
+                return returnInfo;
+            });
     }
 }
 
