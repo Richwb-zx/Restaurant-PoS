@@ -5,7 +5,7 @@ const checkSession = (req, res, next) => {
     const token = req.cookies.token;
     const path = req.path;
 
-    if(!token && path == '/login'){
+    if(!token && (path === '/login' || path === '/register')){
         next();
     }else if(!token && path !== '/login'){
         res.redirect('/login');

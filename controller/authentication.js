@@ -9,14 +9,19 @@ const Autentication = class Authentication{
 
     async user(){
         const userService = new user(this.account);
-        const userData = await userService.getUser()
+        const userData = await userService.getUser();
 
         if(!userData || !this.bcryptCompare(userData.password)){
             return false;
         }
 
         return userService.setSession();
-        
+    }
+
+    async register(){
+        const userService = new user(this.account);
+        const pwHash = this.bcryptHash();
+        return userService.createUser(pwHash);
     }
 
     bcryptHash(){

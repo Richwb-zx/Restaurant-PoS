@@ -27,8 +27,10 @@ router.post('/logout', (req, res) =>{
  
 });
 
-router.post('/register', (req, res) =>{
- 
+router.post('/register', async(req, res) =>{
+    const authenticate = new authentication(req.query.userName, req.query.password);
+    const registerResult = await authenticate.register();    
+    res.status(registerResult[1].httpStatus).json(registerResult[0]);
 });
 
 module.exports = router;
