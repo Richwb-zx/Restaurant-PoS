@@ -20,7 +20,8 @@ const Autentication = class Authentication{
 
     async register(){
         const userService = new user(this.account);
-        const userData = await userService.getUser(false);
+        const pwHash = this.bcryptHash();
+        return userService.createUser(pwHash);
     }
 
     bcryptHash(){
