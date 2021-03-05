@@ -24,6 +24,11 @@ const Autentication = class Authentication{
         return userService.createUser(pwHash);
     }
 
+    logout(){
+        const userService = new user(this.account);
+        return userService.setSession(true);
+    }
+
     bcryptHash(){
         return bcryptjs.hashSync(this.password, bcryptjs.genSaltSync(13));
     }
