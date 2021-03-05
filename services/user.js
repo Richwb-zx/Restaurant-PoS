@@ -29,7 +29,7 @@ const User = class User{
     }
 
     setSession(logout = false){
-        const expireTime = (logout === false ? process.env.node_sess_life : 300);
+        const expireTime = (logout === false ? process.env.node_sess_life : 0);
         return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: expireTime });
     }
 
