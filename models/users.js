@@ -7,6 +7,24 @@ class Users extends Model{
         return 'users';
     }
 
+    static get relationMappings() {
+
+        const AuthTimeout = require('./authorization_timeout.js');
+
+        return {
+            authTimeout: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: AuthTimeout,
+                join: {
+                    from: 'users.id',
+                    to: 'authorization_timeout.user_id'
+                }
+            }
+        }
+    }
+
+    
+
     async $beforeInsert() {
         this.created_on = this.getDate();
     }
