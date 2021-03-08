@@ -6,26 +6,26 @@ const User = class User{
         this.userName = username;
     }
 
-    getUser(checkActive = true){
-        return new Promise ((resolve, reject) => {
-            const whereStatement = {user_name: this.userName};
+    async getUser(checkActive = 1, checkLocked = 0){
+             
+        const userQuery = userModel.query().select().where('user_name', this.userName)
 
-            if(checkActive === true){
-                whereStatement.active = 1;
-            }
+        if(checkActive !== false){
+            userQuery.where('active', checkActive);
+        }
 
-            userModel
-                .findAll({
-                    raw: true,
-                    where: whereStatement,
-                })
-                .then(result => {
-                    return resolve (result.length > 0 ? result[0] : false);
-                })
-                .catch(error => {
-                    return reject(error);
-                });  
-        });
+        if(checkLocked !== false){
+            userQuery.where('locked', checkLocked);
+        }
+        
+        return await userQuery
+            .then(result => {
+                const success = (result.length > 0 ? true : false);
+                return {result: result, success: success, error: false};
+            })
+            .catch(error => {
+                return {result: 'An Unexpected error has occured, Admin have been notified', success: false, error: true};
+            });
     }
 
     setSession(logout = false){
@@ -34,6 +34,7 @@ const User = class User{
     }
 
     createUser(pwHash){
+        
         return userModel
             .create({user_name: this.userName, password: pwHash, active: 1})
             .then(user => {
