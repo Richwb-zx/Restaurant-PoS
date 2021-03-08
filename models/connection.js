@@ -1,4 +1,4 @@
-const config = require('../config/dbconfig.json')(process.env.nodeEnv);
+const config = require('../config/dbconfig.json')[process.env.nodeEnv];
 
 const knex = require('knex')({
     client: config.dialect,
