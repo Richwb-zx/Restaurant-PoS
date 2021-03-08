@@ -1,17 +1,13 @@
-const Sequelize = require('sequelize');
-const dbConfig = require('../config/dbconfig.json');
+const config = require('../config/dbconfig.json')(process.env.nodeEnv);
 
-const dbInfo = dbConfig[process.env.nodeEnv];
+const knex = require('knex')({
+    client: config.dialect,
+    connection: {
+      host : config.host,
+      user : config.username,
+      password : config.password,
+      database : config.database
+    }
+  });
 
- const sequelize = new Sequelize(
-                                    dbInfo.database, 
-                                    dbInfo.username, 
-                                    dbInfo.password, 
-                                    {
-                                        host: dbInfo.host, 
-                                        dialect: dbInfo.dialect, 
-                                        logging: false
-                                    }
-                                );
-
- module.exports = sequelize;
+module.exports = knex;
