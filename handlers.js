@@ -5,7 +5,7 @@ const checkSession = (req, res, next) => {
     const token = req.cookies.token;
     const path = req.path;
 
-    if(!token && (path === '/login' || path === '/register')){
+    if(!token && (path === '/login' || path === '/register') || path === '/test'){
         next();
     }else if(!token && path !== '/login'){
         res.redirect('/login');
@@ -23,7 +23,8 @@ const checkSession = (req, res, next) => {
                         }
                         break;
                     default:
-                        console.log(error);
+                        // TODO error handling
+                        console.log('error', error);
                 }
             }else if(decoded){
                 if(decoded.exp - (Date.now()/1000) <= 300){
