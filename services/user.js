@@ -20,11 +20,11 @@ const User = class User{
         
         return await userQuery
             .then(result => {
-                const success = (result.length > 0 ? true : false);
-                return {result: result, success: success, error: false};
+                const response = (result.length > 0 ? result[0] : false);
+                return {response: response, success: true};
             })
             .catch(error => {
-                return {result: 'An Unexpected error has occured, Admin have been notified', success: false, error: true};
+                return {response: 'An Unexpected error has occured, Admin have been notified', success: false};
             });
     }
 
