@@ -8,14 +8,31 @@ const Autentication = class Authentication{
     }
 
     async user(){
-        const userService = new user(this.account);
-        const userData = await userService.getUser();
+        const loginResult = [];
+        let bcryptToken = false;
 
-        if(!userData || !this.bcryptCompare(userData.password)){
-            return false;
+        const userService = new user(this.account);
+        const userResult = await userService.getUser();
+        const resultId = userResult.response.id;
+        
+        if(userResult.success === false){
+            return loginResult.push(userResult, {httpStatus: 500});
+        }else if(resultId !== undefined){
+            bcryptToken = this.bcryptCompare(userResult.response.password);
+        }
+        
+        if(resultId === undefined || bcryptToken === false){
+            loginResult.push({response:'Incorrect Username or Password.', success: false},{httpStatus: 200});
+        }else if(userResult.success === true && bcryptToken !== false){
+            const token = userService.setSession();
+            loginResult.push({response: 'Login Successful', success: true},{token: token,httpStatus: 200});
+        }else{
+            // TODO error logging 
+            loginResult.push({response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpsStatus: 500});
         }
 
-        return userService.setSession();
+        return loginResult;        
+
     }
 
     async register(){
