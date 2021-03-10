@@ -2,14 +2,13 @@ const jwt = require('jsonwebtoken');
 
 const checkSession = (req, res, next) => {
     const token = req.cookies.token;
-    console.log(req.path);
     const path = req.path;
     // TODO clean up after testing
-    if(path === '/test' ||token === false && (path === '/login' || path === '/register' || path === '/loginauth')){
+    if(path === '/test' || token === undefined && (path === '/login' || path === '/register' || path === '/loginauth')){
         next();
     }else if(token !== false && path === '/loginauth'){
         res.redirect('/');
-    }else if(token === false && path !== '/login'){
+    }else if(token === undefined && path !== '/login'){
         res.redirect('/login');
     }else{
         response = jwt.verify(token, process.env.node_sess_secret, (error, decoded) => {       
