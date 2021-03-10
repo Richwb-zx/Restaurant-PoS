@@ -3,10 +3,14 @@ const router = express.Router();
 const authentication = require('../controller/authentication.js');
 
 router.get('/', (req, res) =>{
-
+    res.status(200).send('HOME PAGE');
 });
 
-router.post('/login', async (req, res) =>{
+router.get('/login', (req, res) => {
+    res.status(200).send('LOGIN');
+});
+
+router.post('/loginauth', async (req, res) =>{
     
     const authenticate = new authentication(req.query.userName, req.query.password);
     const loginResult = await authenticate.user();
@@ -33,6 +37,14 @@ router.post('/register', async(req, res) =>{
     const authenticate = new authentication(req.query.userName, req.query.password);
     const registerResult = await authenticate.register();
     res.status(registerResult[1].httpStatus).json(registerResult[0]);
+});
+
+router.get('/test', (req, res) => {
+    res.status(200).send('testing!!!!');
+});
+
+router.get('/test2', (req, res) => {
+    res.status(200).send('testing!!!!');
 });
 
 module.exports = router;
