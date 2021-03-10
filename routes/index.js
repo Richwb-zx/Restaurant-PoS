@@ -3,24 +3,27 @@ const router = express.Router();
 const authentication = require('../controller/authentication.js');
 
 router.get('/', (req, res) =>{
-
+    res.status(200).send('HOME PAGE');
 });
 
-router.post('/login', async (req, res) =>{
-    
-    let returnMsg = 'An error has occured';
+router.get('/login', (req, res) => {
+    res.status(200).send('LOGIN');
+});
 
-    const authenticate = new authentication(req.query.userName, req.query.password);
-    const token = await authenticate.user();
+router.post('/loginauth', async (req, res) =>{
     
-    if(token !== false){
+    const authenticate = new authentication(req.query.userName, req.query.password);
+    const loginResult = await authenticate.user();
+    
+    const payload = loginResult[0];
+    const httpStatus = loginResult[1].httpStatus;
+
+    if(payload.success === true){
+        const token = loginResult[1].token;
         res.cookie('token', token, {maxAge: process.env.node_sess_life});
-        returnMsg = 'login successful';
-    }else{
-        returnMsg = 'Invalid Username or password';
     }
     
-    res.send(returnMsg);
+    res.status(httpStatus).send(payload);
 });
 
 router.post('/logout', (req, res) =>{
@@ -34,6 +37,14 @@ router.post('/register', async(req, res) =>{
     const authenticate = new authentication(req.query.userName, req.query.password);
     const registerResult = await authenticate.register();
     res.status(registerResult[1].httpStatus).json(registerResult[0]);
+});
+
+router.get('/test', (req, res) => {
+    res.status(200).send('testing!!!!');
+});
+
+router.get('/test2', (req, res) => {
+    res.status(200).send('testing!!!!');
 });
 
 module.exports = router;

@@ -1,64 +1,56 @@
-const Sequelize = require('sequelize');
-const sequelize = require('./connection.js');
+const { Model } = require('objection');
+const knex = require('./connection.js');
 
+Model.knex(knex);
+class Users extends Model{
+    static get tableName(){
+        return 'users';
+    }
 
-const Users = sequelize.define(
-    'users', 
-    {
-        id: {
-            type: Sequelize.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            autoIncrement: true,
-            unique: true,
-        },
-        user_name: {
-            type: Sequelize.STRING(12),
-            allowNull: false,
-            unique: true,
-        },
-        password: {
-            type: Sequelize.CHAR(60,true),
-            allowNull: false,
-        },
-        name: {
-            type: Sequelize.STRING(50),
-            allowNull: true,
-            },
-        last_login: {
-            type: Sequelize.INTEGER,
-            allowNull: true,
-        },
-        created_on: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-        },
-        updated_on: {
-            type: Sequelize.INTEGER,
-            allowNull: true,
-        },
-        deactivated_on: {
-            type: Sequelize.INTEGER,
-            allowNull: true,
-        },
-        active: {
-            type: Sequelize.BOOLEAN,
-            allowNull: false,
-        }
-    },
-    {
-        freezeTableName: true,
-        timestamps: false,
-        hooks: {
-            beforeValidate: (users, options) => {
-                users.created_on = Date.now() / 1000;
+    static get relationMappings() {
+
+        const AuthTimeout = require('./authorization_timeout.js');
+
+        return {
+            authTimeout: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: AuthTimeout,
+                join: {
+                    from: 'users.id',
+                    to: 'authorization_timeout.user_id'
+                }
             }
         }
-    },
-    {
-        
     }
+
     
-);
+
+    async $beforeInsert() {
+        this.created_on = this.getDate();
+    }
+
+    async $beforeUpdate() {
+        const date = this.getDate();
+        this.updated_on = date;
+
+        if(this.active !== undefined && this.active === 0){
+            this.deactivated_on =date;
+        }
+
+        if(this.locked_on !== undefined && this.locked === 1){
+            this.locked_on = date;
+        }
+    }
+
+    getDate(){
+        return Math.round(new Date() / 1000);
+    }
+
+   
+}
+
+
+
+
 
 module.exports = Users;

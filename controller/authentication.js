@@ -8,20 +8,43 @@ const Autentication = class Authentication{
     }
 
     async user(){
-        const userService = new user(this.account);
-        const userData = await userService.getUser();
+        let bcryptToken = false;
 
-        if(!userData || !this.bcryptCompare(userData.password)){
-            return false;
+        const userService = new user(this.account);
+        const userResult = await userService.getUser();
+       
+        if(userResult.error === true){
+            return [{response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}];
+        }else if(userResult.success === true){
+            bcryptToken = this.bcryptCompare(userResult.response.password);
         }
 
-        return userService.setSession();
+        if(bcryptToken === false || userResult.success === false){
+            return [{response:'Incorrect Username or Password.', success: false},{httpStatus: 200}];
+        }else if(bcryptToken === true){
+            const token = userService.setSession();
+            return [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];
+        }
     }
 
     async register(){
         const userService = new user(this.account);
         const pwHash = this.bcryptHash();
-        return userService.createUser(pwHash);
+        const registerResponse = await userService.createUser(pwHash);
+
+        if(registerResponse[1].error === true){
+            registerResponse[1].httpStatus = 500;
+        }else if(registerResponse[0].success === false){
+            registerResponse[1].httpStatus = 200;
+        }else if(registerResponse[0].success === true){
+            registerResponse[0].response = 'Account created!';
+            registerResponse[1].httpStatus = 200;
+        }else{
+            registerResponse = [{response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: true, httpStatus: 500}];
+        }
+
+        return registerResponse
+
     }
 
     logout(){

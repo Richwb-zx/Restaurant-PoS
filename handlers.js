@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken');
 
 const checkSession = (req, res, next) => {
-    
     const token = req.cookies.token;
     const path = req.path;
-
-    if(!token && (path === '/login' || path === '/register')){
+    // TODO clean up after testing
+    if(path === '/test' || token === undefined && (path === '/login' || path === '/register' || path === '/loginauth')){
         next();
-    }else if(!token && path !== '/login'){
+    }else if(token !== false && path === '/loginauth'){
+        res.redirect('/');
+    }else if(token === undefined && path !== '/login'){
         res.redirect('/login');
     }else{
         response = jwt.verify(token, process.env.node_sess_secret, (error, decoded) => {       
@@ -23,7 +24,8 @@ const checkSession = (req, res, next) => {
                         }
                         break;
                     default:
-                        console.log(error);
+                        // TODO error handling
+                        console.log('error', error);
                 }
             }else if(decoded){
                 if(decoded.exp - (Date.now()/1000) <= 300){
