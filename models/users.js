@@ -43,7 +43,7 @@ class Users extends Model{
     }
 
     getDate(){
-        return new Date() / 1000;
+        return Math.round(new Date() / 1000);
     }
 
    
