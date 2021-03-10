@@ -20,11 +20,12 @@ const User = class User{
         
         return await userQuery
             .then(result => {
-                const response = (result.length > 0 ? result[0] : false);
-                return {response: response, success: true};
+                const success = (result.length > 0 ? true : false);
+                return {response: result[0], success: success, error: false};
             })
             .catch(error => {
-                return {response: 'An Unexpected error has occured, Admin have been notified', success: false};
+                // TODO error handling
+                return {success: false, error: true};
             });
     }
 
@@ -33,27 +34,22 @@ const User = class User{
         return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: expireTime });
     }
 
-    createUser(pwHash){
+    async createUser(pwHash){
+        return await userModel.query().insert({user_name: this.userName, password: pwHash, active: 1})
+                                .then(result => {
+                                    console.log(result);
+                                })
+                                .catch(error => {
+                                    switch(error.nativeError.code){
+                                        case 'ER_DUP_ENTRY':
+                                            return [{response: 'Username already exists', success: false,}, {error: false}];
+                                            break;
+                                        default:
+                                            //TODO error handling
+                                            return [{response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: false}];
+                                    }
+                                });        
         
-        return userModel
-            .create({user_name: this.userName, password: pwHash, active: 1})
-            .then(user => {
-                return [{msg: 'Your account has been created', status: true},{httpStatus: 200}];
-            })
-            .catch(error => {
-                const returnInfo = [];
-                switch(error.errors[0].validatorKey){
-                    case 'not_unique':
-                        returnInfo.push({msg: 'An Account with this name already exists.', status: false},{httpStatus: 200});
-                        break;
-                    case 'is_null':
-                    default:
-                        returnInfo.push({msg: 'An error has occured: Unable to process request, admin have been notified', status: false},{httpStatus:500});
-                        break;
-                };
-
-                return returnInfo;
-            });
     }
 }
 
