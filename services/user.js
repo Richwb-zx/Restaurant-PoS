@@ -37,17 +37,17 @@ const User = class User{
     async createUser(pwHash){
         return await userModel.query().insert({user_name: this.userName, password: pwHash, active: 1})
                                 .then(result => {
-                                    console.log(result);
+                                    return [{response: result, success: true}, {error: false}];
                                 })
                                 .catch(error => {
                                     const response = [];
                                     switch(error.nativeError.code){
                                         case 'ER_DUP_ENTRY':
-                                            response.push({response: 'Username already exists', success: false,}, {error: false});
+                                            response.push({response: 'Username already exists', success: false}, {error: true});
                                             break;
                                         default:
                                             //TODO error handling
-                                            response.push({response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: false});
+                                            response.push({response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: true});
                                     }
 
                                     return response;
