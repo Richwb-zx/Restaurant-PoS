@@ -40,14 +40,17 @@ const User = class User{
                                     console.log(result);
                                 })
                                 .catch(error => {
+                                    const response = [];
                                     switch(error.nativeError.code){
                                         case 'ER_DUP_ENTRY':
-                                            return [{response: 'Username already exists', success: false,}, {error: false}];
+                                            response.push({response: 'Username already exists', success: false,}, {error: false});
                                             break;
                                         default:
                                             //TODO error handling
-                                            return [{response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: false}];
+                                            response.push({response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: false});
                                     }
+
+                                    return response;
                                 });        
         
     }
