@@ -30,7 +30,21 @@ const Autentication = class Authentication{
     async register(){
         const userService = new user(this.account);
         const pwHash = this.bcryptHash();
-        return await userService.createUser(pwHash);
+        const registerResponse = await userService.createUser(pwHash);
+
+        if(registerResponse[1].error === true){
+            registerResponse[1].httpStatus = 500;
+        }else if(registerResponse[0].success === false){
+            registerResponse[1].httpStatus = 200;
+        }else if(registerResponse[0].success === true){
+            registerResponse[0].response = 'Account created!';
+            registerResponse[1].httpStatus = 200;
+        }else{
+            registerResponse = [{response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: true, httpStatus: 500}];
+        }
+
+        return registerResponse
+
     }
 
     logout(){
