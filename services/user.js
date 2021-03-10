@@ -41,9 +41,12 @@ const User = class User{
                                 })
                                 .catch(error => {
                                     const response = [];
-                                    switch(error.nativeError.code){
+                            
+                                    const code = (error.nativeError === undefined ? error.code : error.nativeError.code);
+                                  
+                                    switch(code){
                                         case 'ER_DUP_ENTRY':
-                                            response.push({response: 'Username already exists', success: false}, {error: true});
+                                            response.push({response: 'Username already exists', success: false}, {error: false});
                                             break;
                                         default:
                                             //TODO error handling
