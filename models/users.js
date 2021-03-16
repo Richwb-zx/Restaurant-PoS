@@ -44,13 +44,7 @@ class Users extends Model{
 
     getDate(){
         return Math.round(new Date() / 1000);
-    }
-
-   
+    } 
 }
-
-
-
-
 
 module.exports = Users;
