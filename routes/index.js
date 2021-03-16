@@ -12,7 +12,7 @@ router.get('/login', (req, res) => {
 
 router.post('/loginauth', async (req, res) =>{
     
-    const authenticate = new authentication(req.query.userName, req.query.password);
+    const authenticate = new authentication(req.query.userName, req.query.password, req.ip);
     const loginResult = await authenticate.user();
     
     const payload = loginResult[0];
