@@ -24,10 +24,12 @@ class AuthTimeout extends Model{
     }
 
     async $beforeInsert() {
+        console.log('insert');
         this.created_on = this.getDate();
     }
 
     async $beforeUpdate() {
+        console.log('update');
         this.last_attempt = this.getDate(); 
     }
 
@@ -38,4 +40,5 @@ class AuthTimeout extends Model{
    
 }
 
-module.exports = AuthTimeout;
+module.exports.AuthTimeoutModel = AuthTimeout;
+module.exports.knex = knex;
