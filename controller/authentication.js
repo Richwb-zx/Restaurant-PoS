@@ -12,33 +12,38 @@ const Autentication = class Authentication{
     async user(){
         let bcryptToken = false;
         const userResult = await this.userService.getUser();
-       
+    
         if(userResult.error === true){
             return [{response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}];
-        }else if(userResult.success === true){
+        }
+
+        if(userResult.success === true){
+            
+            if(userResult.response.locked === 1 || userResult.response.active === 0){
+                this.userService.invalidLogin(userResult);
+                return [{response:'Account is locked.', success: false},{httpStatus: 200}];
+            }
+            
             bcryptToken = this.bcryptCompare(userResult.response.password);
-        }
+  
+            if(bcryptToken === false){
+                const inValidCheck = await this.userService.invalidLogin(userResult);
+    
+                if(inValidCheck.success === true){
+                    return [{response:'Account has been locked.', success: false},{httpStatus: 200}];
+                }else if (inValidCheck.success === false){
+                    return [{response:'Incorrect Username or Password.', success: false},{httpStatus: 200}];
+                }
 
-        if(bcryptToken === false && userResult.response.locked === 0){
-            const inValidCheck = await this.userService.invalidLogin(userResult);
+            }else if(bcryptToken === true){
+                const token = this.userService.setSession();
+                return [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];
+            }
 
-            if(inValidCheck.sucess === true){
-                return [{response:'Account has been locked.', success: false},{httpStatus: 200}];
-            }  
-
-        }else if(userResult.response.locked === 1){
-            return [{response:'Account is locked.', success: false},{httpStatus: 200}];
-        }else if(userResult.response.active === 1){
-            return [{response:'Account is inactive.', success: false},{httpStatus: 200}];
-        }
-
-        if(bcryptToken === false || userResult.success === false){
+        }else if(userResult.success === false){
             return [{response:'Incorrect Username or Password.', success: false},{httpStatus: 200}];
-        }else if(bcryptToken === true){
-            const token = this.userService.setSession();
-            return [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];
         }
-    }
+    } 
 
     async register(){
         const pwHash = this.bcryptHash();
