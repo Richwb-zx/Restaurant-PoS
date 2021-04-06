@@ -83,9 +83,24 @@ const User = class User{
             //TODO error logging
             console.log(error);
         });
+    }
 
+    processInactiveAccount(userDetails){
+        const coolDown = Math.round(Date.now() / 1000) - 300;
+        let unlockStatus = false;
 
-        
+        if(userDetails.locked === 1 && userDetails.locked_on <= coolDown){
+               userModel.query().findById(userDetails.id).patch({locked: 0, locked_on: null})
+                .catch(error=> {
+                    //TODO error handling
+                    console.log(error);
+                });
+            
+                unlockStatus = true;
+        }
+
+        return unlockStatus;
+            
     }
 }
 

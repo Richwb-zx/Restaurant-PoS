@@ -19,10 +19,14 @@ const Autentication = class Authentication{
 
         if(userResult.success === true){
             
-            if(userResult.response.locked === 1 || userResult.response.active === 0){
-                this.userService.invalidLogin(userResult);
-                return [{response:'Account is locked.', success: false},{httpStatus: 200}];
+            if(userResult.response.locked === 1){
+                if(this.userService.processInactiveAccount(userResult.response) === true){
+                    return [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];
+                }else{
+                    return [{response:'Account is locked.', success: false},{httpStatus: 200}];
+                }
             }
+
             
             bcryptToken = this.bcryptCompare(userResult.response.password);
   
