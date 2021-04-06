@@ -17,7 +17,7 @@ const Autentication = class Authentication{
             return [{response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}];
         }
 
-        if(userResult.success === true){
+        if(userResult.success === true  && userResult.response.active === 1){
             
             if(userResult.response.locked === 1){
                 if(this.userService.processInactiveAccount(userResult.response) === true){
@@ -44,7 +44,7 @@ const Autentication = class Authentication{
                 return [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];
             }
 
-        }else if(userResult.success === false){
+        }else{
             return [{response:'Incorrect Username or Password.', success: false},{httpStatus: 200}];
         }
     } 
@@ -79,9 +79,6 @@ const Autentication = class Authentication{
     bcryptCompare(pwHash){
         return bcryptjs.compareSync(this.password, pwHash);
     }
-
-    
-    
 }
 
 module.exports = Autentication;
