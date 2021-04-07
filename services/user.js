@@ -57,7 +57,6 @@ const User = class User{
         //TODO universal date function
         const date = Math.round(Date.now() / 1000);
         
-
         return knex.raw('INSERT INTO `authorization_timeout` (`user_id`, `number_attempts`, `ip_address`,`last_attempt`, `created_on`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `number_attempts` = `number_attempts` + 1, `last_attempt` = ?', [userId, 1, this.ip,date,date,date])
         .then(() => {
             return knex.raw('UPDATE users u INNER JOIN authorization_timeout at ON (at.user_id = u.id) SET u.locked=1, u.locked_on=? WHERE at.number_attempts = 3 AND at.user_id=?',[date,userId])
@@ -78,6 +77,12 @@ const User = class User{
                 //TODO error logging
                 console.log(error2);
             });
+        }).then(userTimeoutResponse => {
+            if(userTimeoutResponse.success === true){
+                return userTimeoutResponse
+            }else{
+                return {response: 'Invalid username or password', success: true, error: false};
+            }
         })
         .catch(error => {
             //TODO error logging
@@ -89,7 +94,7 @@ const User = class User{
         const coolDown = Math.round(Date.now() / 1000) - 300;
         let unlockStatus = false;
 
-        if(userDetails.locked === 1 && userDetails.locked_on <= coolDown){
+        if(userDetails.locked_on <= coolDown){
                userModel.query().findById(userDetails.id).patch({locked: 0, locked_on: null})
                 .catch(error=> {
                     //TODO error handling
@@ -97,6 +102,12 @@ const User = class User{
                 });
             
                 unlockStatus = true;
+
+                AuthTimeoutModel.query().delete().where('user_id', '=', userDetails.id)
+                .catch(error=> {
+                    //TODO error handling
+                    console.log(error);
+                });
         }
 
         return unlockStatus;
