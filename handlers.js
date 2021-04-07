@@ -46,17 +46,4 @@ const checkSession = (req, res, next) => {
     }
 }
 
-const responseSecurityHeaders =(req, res, next) => {
-    res.set({
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-        "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
-        "Content-Security-Policy": "default-src *",
-        "X-Content-Security-Policy": "default-src *",
-        "X-WebKit-CSP": "default-src *"
-    })
-    next();
-}
-
 module.exports.checkSession = checkSession;
-module.exports.responseSecurityHeaders = responseSecurityHeaders;
