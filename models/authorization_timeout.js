@@ -38,4 +38,5 @@ class AuthTimeout extends Model{
    
 }
 
-module.exports = AuthTimeout;
+module.exports.AuthTimeoutModel = AuthTimeout;
+module.exports.knex = knex;
