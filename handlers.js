@@ -30,7 +30,7 @@ const checkSession = (req, res, next) => {
             }else if(decoded){
                 if(decoded.exp - (Date.now()/1000) <= 300){
                     const token = jwt.sign({username: decoded.username}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
-                    res.cookie('token', token, {maxAge: process.env.node_sess_life});
+                    res.cookie('token', token, {maxAge: process.env.node_sess_life,  httpOnly: true});
 	            
                 }
 
