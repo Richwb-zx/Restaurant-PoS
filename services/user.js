@@ -24,8 +24,7 @@ const User = class User{
     }
 
     setSession(logout = false){
-        const expireTime = (logout === false ? process.env.node_sess_life : 0);
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: expireTime });
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
     }
 
     async createUser(pwHash){
