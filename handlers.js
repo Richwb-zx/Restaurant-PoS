@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
+const redis = require('redis');
+const client = redis.createClient();
 
 const checkSession = (req, res, next) => {
     const token = req.cookies.token;
+
     const path = req.path;
     // TODO clean up after testing
     if(path === '/test' || token === undefined && (path === '/login' || path === '/register' || path === '/loginauth')){
@@ -29,6 +32,13 @@ const checkSession = (req, res, next) => {
                         console.log('error', error);
                 }
             }else if(decoded){
+                const redisKeySearch = 'jwtBL-' + deconded.exp;
+                
+                client.keys(redisKeySearch, (error, redisRes) => {
+                    console.log(redisRes);
+                });
+
+
                 if(decoded.exp - (Date.now()/1000) <= 300){
                     const token = jwt.sign({username: decoded.username}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
                     res.cookie('token', token, {maxAge: process.env.node_sess_life,  httpOnly: true, secure: true});
