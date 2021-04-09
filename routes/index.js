@@ -20,7 +20,7 @@ router.post('/loginauth', async (req, res) =>{
 
     if(payload.success === true){
         const token = loginResult[1].token;
-        res.cookie('token', token, {maxAge: process.env.node_sess_life, httpOnly: true});
+        res.cookie('token', token, {maxAge: process.env.node_sess_life, httpOnly: true, secure: true});
     }
     
     res.status(httpStatus).send(payload);
