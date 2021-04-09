@@ -1,6 +1,8 @@
 const userModel = require('../models/users.js');
 const {AuthTimeoutModel, knex} = require('../models/authorization_timeout.js');
 const jwt = require('jsonwebtoken');
+const redis = require('redis');
+const client = redis.createClient();
 
 const User = class User{
     constructor(username, ip){
@@ -111,6 +113,12 @@ const User = class User{
 
         return unlockStatus;
             
+    }
+
+    logout(token){
+        client.rpush('jwtblacklist', token, (error, res) => {
+            //TODO error handling
+        });
     }
 }
 
