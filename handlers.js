@@ -17,6 +17,7 @@ const checkSession = (req, res, next) => {
                     case 'TokenExpiredError':
                         switch(path){
                             case '/login':
+                                res.clearCookie('token');
                                 next();
                                 break;
                             default:
