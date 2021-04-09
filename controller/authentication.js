@@ -1,6 +1,7 @@
 const user = require('../services/user.js');
 const bcryptjs = require('bcryptjs');
 
+
 const Autentication = class Authentication{
     constructor(account, password, ip){
         this.account = account;
@@ -61,8 +62,8 @@ const Autentication = class Authentication{
 
     }
 
-    logout(){
-        return this.userService.setSession(true);
+    logout(token){
+        this.userService.logout(token);
     }
 
     bcryptHash(){

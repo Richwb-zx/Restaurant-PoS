@@ -28,7 +28,8 @@ router.post('/loginauth', async (req, res) =>{
 
 router.post('/logout', (req, res) =>{
     const authenticate = new authentication(req.query.userName, false);
-    const token = authenticate.logout();
+    authenticate.logout(req.cookies.token);
+
     res.clearCookie('token');
     res.redirect('/login');
 });
