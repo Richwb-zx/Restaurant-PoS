@@ -118,7 +118,12 @@ const User = class User{
     logout(token){
         jwt.verify(token, process.env.node_sess_secret, (error, decoded) => {
 
-            client.hmset('jwtblacklist', token, decoded.exp, (error, res) => {
+            client.LPUSH('jwtblacklist', decoded.exp, (error, res) => {
+                //TODO error handling
+            });
+
+            const jwtBlacklistKey = 'jwtbl-' + decoded.exp;
+            client.LPUSH(jwtBlacklistKey, token, (error, res) =>{
                 //TODO error handling
             });
         });
