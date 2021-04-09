@@ -116,9 +116,14 @@ const User = class User{
     }
 
     logout(token){
-        client.rpush('jwtblacklist', token, (error, res) => {
-            //TODO error handling
+        jwt.verify(token, process.env.node_sess_secret, (error, decoded) => {
+
+            client.hmset('jwtblacklist', token, decoded.exp, (error, res) => {
+                //TODO error handling
+            });
         });
+
+        
     }
 }
 
