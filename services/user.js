@@ -1,6 +1,8 @@
 const userModel = require('../models/users.js');
 const {AuthTimeoutModel, knex} = require('../models/authorization_timeout.js');
 const jwt = require('jsonwebtoken');
+const redis = require('redis');
+const client = redis.createClient();
 
 const User = class User{
     constructor(username, ip){
@@ -24,8 +26,7 @@ const User = class User{
     }
 
     setSession(logout = false){
-        const expireTime = (logout === false ? process.env.node_sess_life : 0);
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: expireTime });
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
     }
 
     async createUser(pwHash){
@@ -112,6 +113,22 @@ const User = class User{
 
         return unlockStatus;
             
+    }
+
+    logout(token){
+        jwt.verify(token, process.env.node_sess_secret, (error, decoded) => {
+
+            client.LPUSH('jwtblacklist', decoded.exp, (error, res) => {
+                //TODO error handling
+            });
+
+            const jwtBlacklistKey = 'jwtbl-' + decoded.exp;
+            client.LPUSH(jwtBlacklistKey, token, (error, res) =>{
+                //TODO error handling
+            });
+        });
+
+        
     }
 }
 

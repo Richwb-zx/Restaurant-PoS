@@ -20,7 +20,7 @@ router.post('/loginauth', async (req, res) =>{
 
     if(payload.success === true){
         const token = loginResult[1].token;
-        res.cookie('token', token, {maxAge: process.env.node_sess_life, httpOnly: true});
+        res.cookie('token', token, {maxAge: process.env.node_sess_life, httpOnly: true, secure: true});
     }
     
     res.status(httpStatus).send(payload);
@@ -28,7 +28,8 @@ router.post('/loginauth', async (req, res) =>{
 
 router.post('/logout', (req, res) =>{
     const authenticate = new authentication(req.query.userName, false);
-    const token = authenticate.logout();
+    authenticate.logout(req.cookies.token);
+
     res.clearCookie('token');
     res.redirect('/login');
 });

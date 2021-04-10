@@ -6,7 +6,8 @@
 
 const app = require('../app');
 const debug = require('debug')('restaurant-pos:server');
-const http = require('http');
+const https = require('https');
+const fs = require('fs')
 const sequelize = require('../models/connection.js');
 
 /**
@@ -17,11 +18,15 @@ const port = process.env.nodePort;
 
 app.set('port', port);
 
+
+const httpsOptions = {
+  key: fs.readFileSync('./security/cert.key'),
+  cert: fs.readFileSync('./security/cert.pem')
+}
 /**
  * Create HTTP server.
  */
-
-const server = http.createServer(app);
+const server = https.createServer(httpsOptions, app);
 
 /**
  * Listen on provided port, on all network interfaces.

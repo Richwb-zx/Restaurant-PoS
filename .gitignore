@@ -117,3 +117,5 @@ dist
 
 # VS Code jira connection settings
 .vscode/settings.json
+security/cert.key
+security/cert.pem
