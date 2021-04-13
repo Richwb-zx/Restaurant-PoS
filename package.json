@@ -20,5 +20,8 @@
     "redis-server": "^1.2.2",
     "sequelize": "^6.5.0",
     "winston": "^3.3.3"
+  },
+  "nodemonConfig": {
+    "ignore": ["logs/"]
   }
 }
