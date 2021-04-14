@@ -1,6 +1,5 @@
 const schedule = require('node-schedule');
-const redis = require('redis');
-const client = redis.createClient();
+const client = require('../lib/redis.js');
 
 const crontask = schedule.scheduleJob('*/1 * * * *', (error, res) => {
     const nowSeconds = Math.round(new Date().getTime() / 1000);

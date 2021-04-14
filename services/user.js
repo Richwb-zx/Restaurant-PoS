@@ -1,8 +1,8 @@
 const userModel = require('../models/users.js');
 const {AuthTimeoutModel, knex} = require('../models/authorization_timeout.js');
 const jwt = require('jsonwebtoken');
-const redis = require('redis');
-const client = redis.createClient();
+const client = require('../lib/redis.js');
+const logger = require('../controller/winston.js');
 
 const User = class User{
     constructor(username, ip){
