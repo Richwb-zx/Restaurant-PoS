@@ -45,14 +45,14 @@ class CustomTransport extends Transport {
         setImmediate(() => {
             this.emit('logged', info[MESSAGE]);
         });
-        
+
         this.writeToLog(JSON.parse(info[MESSAGE]));
 
         callback();
     }
 }
 
-const logTest = winston.createLogger({
+const logger = winston.createLogger({
     level: 'debug',
     levels: winston.config.syslog.levels,
     format: winston.format.combine(
@@ -72,11 +72,10 @@ const logTest = winston.createLogger({
     ),
     transports: [
         new CustomTransport({
-            filename: logFile,
-            handleExceptions: true
+            filename: logFile
         }),
         new winston.transports.Console()
     ]
 });
 
-module.exports = logTest;
+module.exports = logger;
