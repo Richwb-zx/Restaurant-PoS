@@ -50,6 +50,19 @@ class CustomTransport extends Transport {
 
         callback();
     }
+
+    createMessage(error){
+        let message = '';
+        switch(error.code){
+            case 'ECONNREFUSED':
+                message = `Connection error on ${error.address}: ${error.port}`;
+                break;
+            default:
+                message = `Unknown error. Code: ${error.code} syscall: ${error.syscall}`;      
+        }
+
+       return message;
+    }
 }
 
 const logger = winston.createLogger({
@@ -57,11 +70,12 @@ const logger = winston.createLogger({
     levels: winston.config.syslog.levels,
     format: winston.format.combine(
         winston.format(function(info, opts) {
+            message = (info.message !== undefined ? info.message : this.createErrorMessage(info.error));
             prefix = util.format(
                 '{"level": "%s", "date": %d, "message": "%s", "user": "%s", "namespace": "%s"}', 
                 info.level, 
                 Math.round(new Date() / 1000), 
-                info.message, 
+                message, 
                 info.user, 
                 info.namespace
             );
