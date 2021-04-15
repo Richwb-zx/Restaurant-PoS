@@ -50,19 +50,6 @@ class CustomTransport extends Transport {
 
         callback();
     }
-
-    createMessage(error){
-        let message = '';
-        switch(error.code){
-            case 'ECONNREFUSED':
-                message = `Connection error on ${error.address}: ${error.port}`;
-                break;
-            default:
-                message = `Unknown error. Code: ${error.code} syscall: ${error.syscall}`;      
-        }
-
-       return message;
-    }
 }
 
 const logger = winston.createLogger({
@@ -70,7 +57,7 @@ const logger = winston.createLogger({
     levels: winston.config.syslog.levels,
     format: winston.format.combine(
         winston.format(function(info, opts) {
-            message = (info.message !== undefined ? info.message : this.createErrorMessage(info.error));
+            message = (info.message.errno === undefined ? info.message : createErrorMessage(info.message));
             prefix = util.format(
                 '{"level": "%s", "date": %d, "message": "%s", "user": "%s", "namespace": "%s"}', 
                 info.level, 
@@ -91,5 +78,18 @@ const logger = winston.createLogger({
         new winston.transports.Console()
     ]
 });
+
+const createErrorMessage = (error) =>{
+    let message = '';
+    switch(error.code){
+        case 'ECONNREFUSED':
+            message = `Connection error on ${error.address}: ${error.port}`;
+            break;
+        default:
+            message = `Unknown error. Code: ${error.code} syscall: ${error.syscall}`;      
+    }
+
+   return message;
+}
 
 module.exports = logger;
