@@ -36,7 +36,7 @@ const server = https.createServer(httpsOptions, app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-logger.info({"message":`Node Is listening on {port}`, "user": 'system', "namespace": 'www.server.listening'});
+logger.info({"message":`Node Is listening on ${port}`, "user": 'system', "namespace": 'www.server.listening'});
 
 /**
  * Event listener for HTTP server "error" event.
@@ -53,12 +53,12 @@ function onError(error) {
   switch (error.code) {
     case 'EACCES':
       console.error(`{bind} requires elevated privileges`);
-      logger.error({"message": `{bind} requires elevated privileges`, "user": 'system', "namespace": 'www.server.bind.privileges'});
+      logger.error({"message": `${bind} requires elevated privileges`, "user": 'system', "namespace": 'www.server.bind.privileges'});
       process.exit(1);
       break;
     case 'EADDRINUSE':
       console.error(`{bind}  is already in use`);
-      logger.error({"message": `{port} is already in use`, "user": 'system', "namespace": 'www.server.bind.use'});
+      logger.error({"message": `${port} is already in use`, "user": 'system', "namespace": 'www.server.bind.use'});
       process.exit(1);
       break;
     default:
@@ -72,6 +72,6 @@ function onError(error) {
 
 function onListening() {
   const addr = server.address();
-  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  debug(`Listening on {bind}`);
+  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+  debug(`Listening on ${bind}`);
 }
