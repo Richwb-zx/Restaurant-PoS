@@ -80,7 +80,7 @@ const logger = winston.createLogger({
 });
 
 const createErrorMessage = (info) =>{
-    const error = info.error;
+    const error = info.message;
     let message = '';
     
     if(error.address !== undefined){
