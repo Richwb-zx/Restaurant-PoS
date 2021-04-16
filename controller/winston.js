@@ -57,7 +57,7 @@ const logger = winston.createLogger({
     levels: winston.config.syslog.levels,
     format: winston.format.combine(
         winston.format(function(info, opts) {
-            message = (info.message.errno === undefined ? info.message : createErrorMessage(info.message));
+            message = (info.message.code === undefined ? info.message : createErrorMessage(info));
             prefix = util.format(
                 '{"level": "%s", "date": %d, "message": "%s", "user": "%s", "namespace": "%s"}', 
                 info.level, 
@@ -79,14 +79,19 @@ const logger = winston.createLogger({
     ]
 });
 
-const createErrorMessage = (error) =>{
+const createErrorMessage = (info) =>{
+    const error = info.error;
     let message = '';
+    
     switch(error.code){
         case 'ECONNREFUSED':
             message = `Connection error on ${error.address}: ${error.port}`;
             break;
+        case 'invalid signature':
+            message = `jason web token has an invalid signature at ${info.namespace}`;
+            break;
         default:
-            message = `Unknown error. Code: ${error.code} syscall: ${error.syscall}`;      
+            message = `Unknown error. Code: ${error.code}`;      
     }
 
    return message;
