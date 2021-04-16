@@ -83,15 +83,10 @@ const createErrorMessage = (info) =>{
     const error = info.error;
     let message = '';
     
-    switch(error.code){
-        case 'ECONNREFUSED':
-            message = `Connection error on ${error.address}: ${error.port}`;
-            break;
-        case 'invalid signature':
-            message = `jason web token has an invalid signature at ${info.namespace}`;
-            break;
-        default:
-            message = `Unknown error. Code: ${error.code}`;      
+    if(error.address !== undefined){
+        message = `${error.code} on ${error.address}:${error.port}`;
+    }else{
+        message = error.code;
     }
 
    return message;
