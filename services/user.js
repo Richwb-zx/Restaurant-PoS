@@ -26,13 +26,12 @@ const User = class User{
     }
 
     setSession(logout = false){
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, function(error){      
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "gfd", expiresIn: process.env.node_sess_life }, function(error, token){      
             if(error !== undefined){
                 logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
             }else{
                 logger.info({"message": this.userName +' has logged in', "user": "system", "namespace": 'users.account.account.success'});
             }
-            
         });
     }
 
