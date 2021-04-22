@@ -1,7 +1,6 @@
 const user = require('../services/user.js');
 const bcryptjs = require('bcryptjs');
 
-
 const Autentication = class Authentication{
     constructor(account, password, ip){
         this.account = account;
@@ -35,7 +34,14 @@ const Autentication = class Authentication{
             }else if(bcryptToken === true){
                 this.userService.processInactiveAccount(userResult.response)
                 const token = this.userService.setSession();
-                return [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];
+                let response = [];
+                if(token !== undefined){
+                    response = [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];    
+                }else{
+                    response = [{response: 'An unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}]
+                }
+
+                return response;
             }
 
         }else{
@@ -59,7 +65,6 @@ const Autentication = class Authentication{
         }
 
         return registerResponse
-
     }
 
     logout(token){
