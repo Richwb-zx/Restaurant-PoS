@@ -26,8 +26,13 @@ const User = class User{
     }
 
     setSession(logout = false){
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "g544", expiresIn: process.env.node_sess_life }, function(error){      
-            logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, function(error){      
+            if(error !== undefined){
+                logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
+            }else{
+                logger.info({"message": this.userName +' has logged in', "user": "system", "namespace": 'users.account.account.success'});
+            }
+            
         });
     }
 
