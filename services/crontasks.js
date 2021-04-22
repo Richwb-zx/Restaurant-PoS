@@ -7,7 +7,7 @@ const crontask = schedule.scheduleJob('*/1 * * * *', (error, res) => {
     let redisKey = '';
 
     client.lrange('jwtblacklist', 0 , -1, (error, res) => {
-        if(error !== undefined){
+        if(error !== null){
             logger.error(logger.error({"message": {"code": escape(error)}, "user": "system", "namespace": 'crontask.schedulejobs.blacklist.lrange'}));
         }else{
             res.forEach(jwtBlDate => {
