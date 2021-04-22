@@ -20,13 +20,15 @@ const User = class User{
                 return {response: result[0], success: success, error: false};
             })
             .catch(error => {
-                // TODO error handling
+                logger.crit({"message": error, "user": "system", "namespace": 'users.getuser.select.error'});
                 return {success: false, error: true};
             });
     }
 
     setSession(logout = false){
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "g544", expiresIn: process.env.node_sess_life }, function(error){      
+            logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
+        });
     }
 
     async createUser(pwHash){
@@ -44,7 +46,7 @@ const User = class User{
                                             response.push({response: 'Username already exists', success: false}, {error: false});
                                             break;
                                         default:
-                                            //TODO error handling
+                                            logger.crit({"message": error, "user": "system", "namespace": 'users.createuser.insert.error'});
                                             response.push({response: 'An Unexpected error has occured, Admin have been notified', success: false}, {error: true});
                                     }
 
@@ -65,8 +67,9 @@ const User = class User{
                 let response = '';
                 let success = false;
                 if(updateResult[0].changedRows === 1){
-                   response = 'Account has been locked, please wait 5 minutes';
-                   success = true;
+                    response = 'Account has been locked, please wait 5 minutes';
+                    logger.info({"message": response, "user": userId, "namespace": 'users.invalidlogin.login.locked'});
+                    success = true;
                 }else{
                     response = updateResult;
                     success = false;
@@ -74,41 +77,34 @@ const User = class User{
 
                 return {response: response, success: success, error: false};
 
-            }).catch(error2 => {
-                //TODO error logging
-                console.log(error2);
-            });
+            }).catch(invalidUpdateError => logger.crit({"message": invalidUpdateError, "user": "system", "namespace": 'users.invalidlogin.locked.update'}));
         }).then(userTimeoutResponse => {
             if(userTimeoutResponse.success === true){
                 return userTimeoutResponse
             }else{
+                const insertResponse = 'Invalid username or password';
+                logger.info({"message": insertResponse, "user": userId, "namespace": 'users.invalidlogin.login.invalid'});
                 return {response: 'Invalid username or password', success: true, error: false};
             }
         })
-        .catch(error => {
-            //TODO error logging
-            console.log(error);
-        });
+        .catch(insertUpdateError => logger.crit({"message": insertUpdateError, "user": "system", "namespace": 'users.invalidlogin.insert.error'}));
     }
 
     processInactiveAccount(userDetails){
+        const userId = userDetails.id;
         const coolDown = Math.round(Date.now() / 1000) - 300;
         let unlockStatus = false;
 
         if(userDetails.locked_on <= coolDown){
-               userModel.query().findById(userDetails.id).patch({locked: 0, locked_on: null})
-                .catch(error=> {
-                    //TODO error handling
-                    console.log(error);
-                });
+               userModel.query().findById(userId).patch({locked: 0, locked_on: null})
+                .then(()=> logger.info({"message": "Account has been unlocked due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
+                .catch(coolDownError => logger.info({"message": coolDownError, "user": "system", "namespace": 'users.inactiveaccounts.select.error'}));
             
                 unlockStatus = true;
 
-                AuthTimeoutModel.query().delete().where('user_id', '=', userDetails.id)
-                .catch(error=> {
-                    //TODO error handling
-                    console.log(error);
-                });
+                AuthTimeoutModel.query().delete().where('user_id', '=', userId)
+                .then(()=> logger.info({"message": "Account has been removed from timeout due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
+                .catch(coolDownDeleteError => logger.info({"message": coolDownDeleteError, "user": "system", "namespace": 'users.inactiveaccounts.delete.error'}));
         }
 
         return unlockStatus;
@@ -117,18 +113,14 @@ const User = class User{
 
     logout(token){
         jwt.verify(token, process.env.node_sess_secret, (error, decoded) => {
-
-            client.LPUSH('jwtblacklist', decoded.exp, (error, res) => {
-                //TODO error handling
-            });
-
-            const jwtBlacklistKey = 'jwtbl-' + decoded.exp;
-            client.LPUSH(jwtBlacklistKey, token, (error, res) =>{
-                //TODO error handling
-            });
+            if(decoded === undefined){
+                logger.crit({"message": {"code": error.message}, "user": "system", "namespace": 'users.logout.jwt.verify'});
+            }else{
+                client.LPUSH('jwtblacklist', decoded.exp);
+                const jwtBlacklistKey = 'jwtbl-' + decoded.exp;
+                client.LPUSH(jwtBlacklistKey, token);
+            }
         });
-
-        
     }
 }
 
