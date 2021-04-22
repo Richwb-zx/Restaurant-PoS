@@ -12,13 +12,14 @@ class CustomTransport extends Transport {
     }
 
     readLog(){
-        let logJson = [];
+        
         if(fs.existsSync(logFile) === false){
             this.createLog();
         }
 
-        logJson = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-
+        let logJson = fs.readFileSync(logFile, 'utf8');
+        logJson = JSON.parse(logJson);
+       
         return logJson;
     }
 
@@ -29,9 +30,12 @@ class CustomTransport extends Transport {
     }
 
     writeToLog(info){
-        const logJson = this.readLog();
-       
-        logJson[info.level].push(info);
+        const logJson = this.readLog();  
+        
+        let infoRaw = JSON.parse(info);
+        infoRaw.message = unescape(infoRaw.message);
+
+        logJson[infoRaw.level].push(infoRaw);
         const logStringify = JSON.stringify(logJson);
 
         try{
@@ -46,7 +50,7 @@ class CustomTransport extends Transport {
             this.emit('logged', info[MESSAGE]);
         });
 
-        this.writeToLog(JSON.parse(info[MESSAGE]));
+        this.writeToLog(info[MESSAGE]);
 
         callback();
     }
@@ -58,6 +62,7 @@ const logger = winston.createLogger({
     format: winston.format.combine(
         winston.format(function(info, opts) {
             message = (info.message.code === undefined ? info.message : createErrorMessage(info));
+           
             prefix = util.format(
                 '{"level": "%s", "date": %d, "message": "%s", "user": "%s", "namespace": "%s"}', 
                 info.level, 
@@ -82,7 +87,7 @@ const logger = winston.createLogger({
 const createErrorMessage = (info) =>{
     const error = info.message;
     let message = '';
-    
+
     if(error.address !== undefined){
         message = `${error.code} on ${error.address}:${error.port}`;
     }else{
