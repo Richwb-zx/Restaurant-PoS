@@ -26,7 +26,7 @@ const User = class User{
     }
 
     setSession(logout = false){
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "gfd", expiresIn: process.env.node_sess_life }, function(error, token){      
+        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, function(error, token){      
             if(error !== undefined){
                 logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
             }else{
@@ -60,7 +60,7 @@ const User = class User{
     }
 
     async invalidLogin(userResult){
-        const userId = userResult.response.id;      
+        const userId = userResult.id;      
         //TODO universal date function
         const date = Math.round(Date.now() / 1000);
         
@@ -99,7 +99,7 @@ const User = class User{
         const coolDown = Math.round(Date.now() / 1000) - 300;
         let unlockStatus = false;
 
-        if(userDetails.locked_on <= coolDown){
+        if(userDetails.locked_on !== null && userDetails.locked_on <= coolDown){
                userModel.query().findById(userId).patch({locked: 0, locked_on: null})
                 .then(()=> logger.info({"message": "Account has been unlocked due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
                 .catch(coolDownError => logger.info({"message": coolDownError, "user": "system", "namespace": 'users.inactiveaccounts.select.error'}));
