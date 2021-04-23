@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const redis = require('redis');
-const client = redis.createClient();
+const client = require('./lib/redis.js');
 const { promisify } = require('util');
 const jwtverify = promisify(jwt.verify).bind(jwt);
 const clientKeys = promisify(client.keys).bind(client);
