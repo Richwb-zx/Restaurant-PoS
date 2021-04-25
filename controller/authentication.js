@@ -20,7 +20,7 @@ const Autentication = class Authentication{
         if(userResult.success === true  && userResult.response.active === 1){
             
             if(userResult.response.locked === 1 && this.userService.processInactiveAccount(userResult.response) === false){
-                this.userService.invalidLogin(userResult);    
+                this.userService.invalidLogin(userResult.response);
                 return [{response:'Account is locked.', success: false},{httpStatus: 200}];
             }
             
