@@ -71,10 +71,13 @@ const User = class User{
         const userId = userResult.id;      
         //TODO universal date function
         const date = Math.round(Date.now() / 1000);
-        
+
         return knex.raw('INSERT INTO `authorization_timeout` (`user_id`, `number_attempts`, `ip_address`,`last_attempt`, `created_on`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `number_attempts` = `number_attempts` + 1, `last_attempt` = ?', [userId, 1, this.ip,date,date,date])
         .then(() => {
-            return knex.raw('UPDATE users u INNER JOIN authorization_timeout at ON (at.user_id = u.id) SET u.locked=1, u.locked_on=? WHERE at.number_attempts = 3 AND at.user_id=?',[date,userId])
+            if(userResult.locked === 1){
+                return {success: false}
+            }
+            return knex.raw('UPDATE users u INNER JOIN authorization_timeout at ON (at.user_id = u.id) SET u.locked=1, u.locked_on=? WHERE MOD(at.number_attempts,3) = 0 AND at.user_id=?',[date,userId])
             .then(updateResult => {
                 let response = '';
                 let success = false;
@@ -89,7 +92,7 @@ const User = class User{
 
                 return {response: response, success: success, error: false};
 
-            }).catch(invalidUpdateError => logger.crit({"message": invalidUpdateError, "user": "system", "namespace": 'users.invalidlogin.locked.update'}));
+            }).catch(invalidUpdateError => logger.crit({"message": escape(invalidUpdateError), "user": "system", "namespace": 'users.invalidlogin.locked.update'}));
         }).then(userTimeoutResponse => {
             if(userTimeoutResponse.success === true){
                 return userTimeoutResponse
@@ -99,7 +102,7 @@ const User = class User{
                 return {response: 'Invalid username or password', success: true, error: false};
             }
         })
-        .catch(insertUpdateError => logger.crit({"message": insertUpdateError, "user": "system", "namespace": 'users.invalidlogin.insert.error'}));
+        .catch(insertUpdateError => logger.crit({"message": escape(insertUpdateError), "user": "system", "namespace": 'users.invalidlogin.insert.error'}));
     }
 
     processInactiveAccount(userDetails){
