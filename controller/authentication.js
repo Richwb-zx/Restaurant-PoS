@@ -20,20 +20,19 @@ const Autentication = class Authentication{
         if(userResult.success === true  && userResult.response.active === 1){
             
             if(userResult.response.locked === 1 && this.userService.processInactiveAccount(userResult.response) === false){
-                this.userService.invalidLogin(userResult);    
+                this.userService.invalidLogin(userResult.response);
                 return [{response:'Account is locked.', success: false},{httpStatus: 200}];
             }
             
             bcryptToken = this.bcryptCompare(userResult.response.password);
 
             if(bcryptToken === false){
-                const inValidLoginCheck = await this.userService.invalidLogin(userResult);
+                const inValidLoginCheck = await this.userService.invalidLogin(userResult.response);
                
                 return [{response: inValidLoginCheck.response, success: false},{httpStatus: 200}];
 
             }else if(bcryptToken === true){
-                this.userService.processInactiveAccount(userResult.response)
-                const token = this.userService.setSession();
+                const token = await this.userService.setSession();
                 let response = [];
                 if(token !== undefined){
                     response = [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];    

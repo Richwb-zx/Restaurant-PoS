@@ -25,13 +25,21 @@ const User = class User{
             });
     }
 
-    setSession(logout = false){
-        return jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "gfd", expiresIn: process.env.node_sess_life }, function(error, token){      
-            if(error !== undefined){
-                logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
-            }else{
-                logger.info({"message": this.userName +' has logged in', "user": "system", "namespace": 'users.account.account.success'});
-            }
+    async setSession(logout = false){
+        return await new Promise((resolve, reject) =>{
+            jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, (error, token) =>{      
+                if(error !== undefined){             
+                    resolve(token);
+                }else{
+                    reject(error);          
+                }
+            });
+        }).then(token =>{
+            logger.info({"message": 'User has logged in', "user": `${this.userName}`, "namespace": 'users.setsession.jwt.sign'});
+            return token;
+        }).catch(error => {
+            logger.crit({"message": {"code": escape(error)}, "user": "system", "namespace": 'users.setsession.jwt.sign'});
+            return undefined;
         });
     }
 
@@ -60,13 +68,16 @@ const User = class User{
     }
 
     async invalidLogin(userResult){
-        const userId = userResult.response.id;      
+        const userId = userResult.id;      
         //TODO universal date function
         const date = Math.round(Date.now() / 1000);
-        
+
         return knex.raw('INSERT INTO `authorization_timeout` (`user_id`, `number_attempts`, `ip_address`,`last_attempt`, `created_on`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `number_attempts` = `number_attempts` + 1, `last_attempt` = ?', [userId, 1, this.ip,date,date,date])
         .then(() => {
-            return knex.raw('UPDATE users u INNER JOIN authorization_timeout at ON (at.user_id = u.id) SET u.locked=1, u.locked_on=? WHERE at.number_attempts = 3 AND at.user_id=?',[date,userId])
+            if(userResult.locked === 1){
+                return {success: false}
+            }
+            return knex.raw('UPDATE users u INNER JOIN authorization_timeout at ON (at.user_id = u.id) SET u.locked=1, u.locked_on=? WHERE MOD(at.number_attempts,3) = 0 AND at.user_id=?',[date,userId])
             .then(updateResult => {
                 let response = '';
                 let success = false;
@@ -81,7 +92,7 @@ const User = class User{
 
                 return {response: response, success: success, error: false};
 
-            }).catch(invalidUpdateError => logger.crit({"message": invalidUpdateError, "user": "system", "namespace": 'users.invalidlogin.locked.update'}));
+            }).catch(invalidUpdateError => logger.crit({"message": escape(invalidUpdateError), "user": "system", "namespace": 'users.invalidlogin.locked.update'}));
         }).then(userTimeoutResponse => {
             if(userTimeoutResponse.success === true){
                 return userTimeoutResponse
@@ -91,7 +102,7 @@ const User = class User{
                 return {response: 'Invalid username or password', success: true, error: false};
             }
         })
-        .catch(insertUpdateError => logger.crit({"message": insertUpdateError, "user": "system", "namespace": 'users.invalidlogin.insert.error'}));
+        .catch(insertUpdateError => logger.crit({"message": escape(insertUpdateError), "user": "system", "namespace": 'users.invalidlogin.insert.error'}));
     }
 
     processInactiveAccount(userDetails){
@@ -99,7 +110,7 @@ const User = class User{
         const coolDown = Math.round(Date.now() / 1000) - 300;
         let unlockStatus = false;
 
-        if(userDetails.locked_on <= coolDown){
+        if(userDetails.locked_on !== null && userDetails.locked_on <= coolDown){
                userModel.query().findById(userId).patch({locked: 0, locked_on: null})
                 .then(()=> logger.info({"message": "Account has been unlocked due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
                 .catch(coolDownError => logger.info({"message": coolDownError, "user": "system", "namespace": 'users.inactiveaccounts.select.error'}));
