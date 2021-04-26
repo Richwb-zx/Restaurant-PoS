@@ -11,6 +11,7 @@ class Users extends Model{
 
         const AuthTimeout = require('./authorization_timeout');
         const AuthGroups = require('./authorization_groups');
+        const RoutesAuth = require('./routes_authorization');
 
         return {
             authTimeout: {
@@ -27,6 +28,14 @@ class Users extends Model{
                 join: {
                     from: 'users.id',
                     to: 'authorization_groups.created_by'
+                }
+            },
+            routesAuth: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: RoutesAuth,
+                join: {
+                    from: 'users.id',
+                    to: 'routes_authorization.created_by'
                 }
             }
         }
