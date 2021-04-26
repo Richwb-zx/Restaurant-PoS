@@ -10,6 +10,7 @@ class Auth_groups extends Model{
     static get relationMappings() {
 
         const RoutesAuth = require('./routes_authorization');
+        const User = require('./users');
 
         return {
             routesAuth: {
@@ -18,6 +19,14 @@ class Auth_groups extends Model{
                 join: {
                     from: 'authorization_groups.id',
                     to: 'routes_authorization.group_id'
+                }
+            },
+            users: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: User,
+                join: {
+                    from: 'authorization_groups.created_by',
+                    to: 'users.id'
                 }
             }
         }
