@@ -11,6 +11,7 @@ class RoutesAuth extends Model{
 
         const Routes = require('./routes');
         const authGroups = require('./authorization_groups');
+        const User = require('./users');
 
         return {
             routes: {
@@ -27,6 +28,14 @@ class RoutesAuth extends Model{
                 join: {
                     from: 'routes_authorization.group_id',
                     to: 'authorization_groups.id'
+                }
+            },
+            users: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: User,
+                join: {
+                    from: 'routes_authorization.created_by',
+                    to: 'users.id'
                 }
             }
         }
