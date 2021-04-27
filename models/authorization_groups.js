@@ -21,7 +21,15 @@ class Auth_groups extends Model{
                     to: 'routes_authorization.group_id'
                 }
             },
-            users: {
+            userAuth: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: User,
+                join: {
+                    from: 'authorization_groups.id',
+                    to: 'users.authorization_group'
+                }
+            },
+            userCreated: {
                 relation: Model.BelongsToOneRelation,
                 modelClass: User,
                 join: {

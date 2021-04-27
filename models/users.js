@@ -22,7 +22,15 @@ class Users extends Model{
                     to: 'authentication_timeout.user_id'
                 }
             },
-            authGroups: {
+            authGroup: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: AuthGroups,
+                join: {
+                    from: 'users.authorization_group',
+                    to: 'authorization_groups.id'
+                }
+            },
+            createdAuthGroups: {
                 relation: Model.BelongsToOneRelation,
                 modelClass: AuthGroups,
                 join: {
