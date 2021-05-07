@@ -25,9 +25,9 @@ const User = class User{
             });
     }
 
-    async setSession(logout = false){
+    async setSession(id, authGroup){
         return await new Promise((resolve, reject) =>{
-            jwt.sign({username: this.userName}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, (error, token) =>{      
+            jwt.sign({username: id,group: authGroup}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, (error, token) =>{      
                 if(error !== undefined){             
                     resolve(token);
                 }else{
