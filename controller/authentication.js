@@ -11,40 +11,41 @@ const Autentication = class Authentication{
 
     async user(){
         let bcryptToken = false;
+
         const userResult = await this.userService.getUser();
     
         if(userResult.error === true){
             return [{response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}];
         }
 
-        if(userResult.success === true  && userResult.response.active === 1){
-            
-            if(userResult.response.locked === 1 && this.userService.processInactiveAccount(userResult.response) === false){
-                this.userService.invalidLogin(userResult.response);
-                return [{response:'Account is locked.', success: false},{httpStatus: 200}];
-            }
-            
-            bcryptToken = this.bcryptCompare(userResult.response.password);
-
-            if(bcryptToken === false){
-                const inValidLoginCheck = await this.userService.invalidLogin(userResult.response);
-               
-                return [{response: inValidLoginCheck.response, success: false},{httpStatus: 200}];
-
-            }else if(bcryptToken === true){
-                const token = await this.userService.setSession();
-                let response = [];
-                if(token !== undefined){
-                    response = [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];    
-                }else{
-                    response = [{response: 'An unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}]
-                }
-
-                return response;
-            }
-
-        }else{
+        if(userResult.success !== true  && userResult.response.active !== 1){
             return [{response:'Incorrect Username or Password.', success: false},{httpStatus: 200}];
+        }
+
+        const userData = userResult.response;
+
+        if(userData.locked === 1 && this.userService.processInactiveAccount(userData) === false){
+            this.userService.invalidLogin(userResult.response);
+            return [{response:'Account is locked.', success: false},{httpStatus: 200}];
+        }
+        
+        bcryptToken = this.bcryptCompare(userData.password);
+
+        if(bcryptToken === false){
+            const inValidLoginCheck = await this.userService.invalidLogin(userData);
+            
+            return [{response: inValidLoginCheck.response, success: false},{httpStatus: 200}];
+
+        }else if(bcryptToken === true){
+            const token = await this.userService.setSession();
+            let response = [];
+            if(token !== undefined){
+                response = [{response: 'Login Successful', success: true},{token: token,httpStatus: 200}];    
+            }else{
+                response = [{response: 'An unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}]
+            }
+
+            return response;
         }
     } 
 
