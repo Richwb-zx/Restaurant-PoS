@@ -9,7 +9,7 @@ const debug = require('debug')('restaurant-pos:server');
 const https = require('https');
 const fs = require('fs')
 const logger = require('../controller/winston.js');
-const client = require('../lib/redis.js');
+const ServerStart = require('../lib/serverstart');
 
 /**
  * Get port from environment and store in Express.
@@ -37,6 +37,9 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 logger.info({"message":`Node Is listening on ${port}`, "user": 'system', "namespace": 'www.server.listener.listening'});
+
+const serverStart = new ServerStart();
+serverStart.getRoutes();
 
 /**
  * Event listener for HTTP server "error" event.
