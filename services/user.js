@@ -27,7 +27,7 @@ const User = class User{
 
     async setSession(id, authGroup){
         return await new Promise((resolve, reject) =>{
-            jwt.sign({username: id,group: authGroup}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, (error, token) =>{      
+            jwt.sign({user: id,group: authGroup}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life }, (error, token) =>{      
                 if(error !== undefined){             
                     resolve(token);
                 }else{
