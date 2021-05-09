@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const client = require('./lib/redis.js');
 const { promisify } = require('util');
+const getAsync = promisify(client.get).bind(client);
 const jwtverify = promisify(jwt.verify).bind(jwt);
 const Users = require('./models/users');
 
@@ -14,7 +15,7 @@ const checkSession = async (req, res, next) => {
     // console.log(routeAuthData);
     
     if(token === undefined){
-
+        const routeAuthData = await authorizationCheck(pathName,httpMethod, 1);
     }else{
         console.log(req.headers);
         const decoded = await jwtverify(token, process.env.node_sess_secret)
@@ -37,8 +38,7 @@ const checkSession = async (req, res, next) => {
             }
         });
 
-        const routeAuthData = await authorizationCheck(pathName,httpMethod, decoded.username);
-        console.log(routeAuthData);
+        const routeAuthData = await authorizationCheck(pathName,httpMethod, decoded.groupId);
     }
 
     // if(routeAuthGroup === 'Public' && token === undefined){
@@ -69,7 +69,7 @@ const checkSession = async (req, res, next) => {
         }else{
             console.log('nope');
             if(decoded.exp - (Date.now()/1000) <= 300){
-                const token = jwt.sign({user: decoded.user}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
+                const token = jwt.sign({user: decoded.user, group: authGroup}, process.env.node_sess_secret, {algorithm: "HS256", expiresIn: process.env.node_sess_life });
                 res.cookie('token', token, {maxAge: process.env.node_sess_life,  httpOnly: true, secure: true});
             
             }
@@ -85,8 +85,19 @@ const checkSession = async (req, res, next) => {
     }
 }
 
-const authorizationCheck = async (path, method, userId)=>{
-    client.get
+async function authorizationCheck(route, method, groupId){
+    
+    return await getAsync(`route-${route}-${method}-${groupId}`)
+        .then(function(result){ 
+            if(result !== null){
+                return true;
+            }else{
+                return false;
+        }})
+        .catch(function(error){
+            logger.error({"message": {"code": escape(error)}, "user": 'System', "namespace": 'handlers.authorizationCheck.redis.error'});
+            return false;
+        });
 }
 
 module.exports.checkSession = checkSession;
