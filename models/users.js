@@ -9,7 +9,9 @@ class Users extends Model{
 
     static get relationMappings() {
 
-        const AuthTimeout = require('./authorization_timeout.js');
+        const AuthTimeout = require('./authentication_timeout');
+        const AuthGroups = require('./authorization_groups');
+        const RoutesAuth = require('./routes_authorization');
 
         return {
             authTimeout: {
@@ -17,7 +19,31 @@ class Users extends Model{
                 modelClass: AuthTimeout,
                 join: {
                     from: 'users.id',
-                    to: 'authorization_timeout.user_id'
+                    to: 'authentication_timeout.user_id'
+                }
+            },
+            authGroup: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: AuthGroups,
+                join: {
+                    from: 'users.authorization_group',
+                    to: 'authorization_groups.id'
+                }
+            },
+            createdAuthGroups: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: AuthGroups,
+                join: {
+                    from: 'users.id',
+                    to: 'authorization_groups.created_by'
+                }
+            },
+            routesAuth: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: RoutesAuth,
+                join: {
+                    from: 'users.id',
+                    to: 'routes_authorization.created_by'
                 }
             }
         }

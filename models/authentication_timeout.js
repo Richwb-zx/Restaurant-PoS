@@ -5,7 +5,7 @@ Model.knex(knex);
 
 class AuthTimeout extends Model{
     static get tableName(){
-        return 'authorization_timeout';
+        return 'authentication_timeout';
     }
 
     static get relationMappings() {
@@ -16,7 +16,7 @@ class AuthTimeout extends Model{
                 relation: Model.BelongsToOneRelation,
                 modelClass: Users,
                 join: {
-                    from: 'authorization_timeout.user_id',
+                    from: 'authentication_timeout.user_id',
                     to: 'users.id'
                 }
             }
