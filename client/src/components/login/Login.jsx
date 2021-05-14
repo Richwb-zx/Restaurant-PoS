@@ -1,6 +1,6 @@
 import './scss/login.scss';
 
-function Login() {
+function LoginForm() {
     return (
       <form className="login-form">
           <input type="text" placeholder="Username"></input>
@@ -9,4 +9,4 @@ function Login() {
     );
   }
   
-  export default Login;
+  export default LoginForm;
