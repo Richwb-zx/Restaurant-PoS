@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import LoginForm from'./components/login/Login';
+import LoginForm from'./components/login/LoginForm';
 import './styling/index.scss';
 
 ReactDOM.render(
