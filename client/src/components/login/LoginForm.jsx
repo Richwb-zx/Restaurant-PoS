@@ -9,6 +9,7 @@ class LoginForm extends React.Component{
     };
 
     this.updatefieldState = this.updatefieldState.bind(this);
+    this.loginSubmit = this.loginSubmit.bind(this);
   }
 
   updatefieldState(event){
@@ -16,11 +17,33 @@ class LoginForm extends React.Component{
     this.setState({[stateName]: event.target.value});
   }
 
+  loginSubmit(event){
+    event.preventDefault();
+    const userName = this.state.username;
+    const password = this.state.password;
+    const loginData = {'username': userName, 'password': password};
+
+    fetch('/loginauth', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.log('error',error);
+    });
+  }
+
   render(){
     return (
-      <form id="loginform" className="login-form">
+      <form className="login-form" onSubmit={this.loginSubmit}>
           <input type="text" name="username" value={this.state.username} onChange={this.updatefieldState} placeholder="Username" required />
-          <input type="password" name="password" value={this.state.password} onChange={this.updatefieldState} placeholder="Password"  required></input>
+          <input type="password" name="password" value={this.state.password} onChange={this.updatefieldState} placeholder="Password" required />
           <input type="submit" value="Login"/>
       </form>
     );
