@@ -23,7 +23,7 @@ router.post('/loginauth', async (req, res) =>{
         res.cookie('token', token, {maxAge: process.env.node_sess_life, httpOnly: true, secure: true});
     }
     
-    res.status(httpStatus).send(payload);
+    res.status(httpStatus).json(payload);
 });
 
 router.post('/logout', (req, res) =>{
