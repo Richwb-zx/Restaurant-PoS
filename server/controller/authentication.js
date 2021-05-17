@@ -13,12 +13,12 @@ const Autentication = class Authentication{
         let bcryptToken = false;
 
         const userResult = await this.userService.getUser();
-    
-        if(userResult.error === true){
+        console.log(userResult);
+        if(userResult.error === true || userResult.success === false){
             return [{response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}];
         }
 
-        if(userResult.success !== true  && userResult.response.active !== 1){
+        if(userResult.response === undefined || userResult.response.active !== 1){
             return [{response:'Incorrect Username or Password.', success: false},{httpStatus: 200}];
         }
 
