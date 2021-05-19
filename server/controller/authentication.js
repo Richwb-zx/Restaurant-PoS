@@ -1,5 +1,6 @@
 const user = require('../services/user.js');
 const bcryptjs = require('bcryptjs');
+const logger = require('../controller/winston.js');
 
 const Autentication = class Authentication{
     constructor(account, password, ip){
@@ -12,8 +13,13 @@ const Autentication = class Authentication{
     async user(){
         let bcryptToken = false;
 
+        const credentialCheck = this.credentialInputCheck();
+        
+        if(credentialCheck.success === false){
+            return [{response: credentialCheck.response, success: false},{httpStatus: 200}];
+        }
+
         const userResult = await this.userService.getUser();
-        console.log(userResult);
         if(userResult.error === true || userResult.success === false){
             return [{response: 'An Unexpected error has occured, Admin have been notified', success: false},{httpStatus: 500}];
         }
@@ -77,6 +83,25 @@ const Autentication = class Authentication{
 
     bcryptCompare(pwHash){
         return bcryptjs.compareSync(this.password, pwHash);
+    }
+
+    credentialInputCheck(){
+        const credentialErrors = {};
+        
+        if(this.account === undefined || this.account === ''){
+            credentialErrors.account = 'Username cannot be empty';
+        }
+
+        if(this.password === undefined || this.password === ''){
+            credentialErrors.password = 'Password cannot be empty';
+        }
+        
+        if(Object.keys(credentialErrors).length > 0){
+            logger.info({"message": "User has attempted to login with missing credentials", "user": this.account, "namespace": 'authentication.credentialInputCheck.credential.error'});
+            return {response: credentialErrors, success: false, error: false};
+        }
+
+        return {success: true}
     }
 }
 
