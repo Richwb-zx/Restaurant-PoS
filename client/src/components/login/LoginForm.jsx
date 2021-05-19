@@ -36,10 +36,12 @@ class LoginForm extends React.Component{
     })
     .then(response => response.json())
     .then(data => {
+      let errorMsg;
       if(data.success === true){
-        console.log(data);
+        console.log(data.response);
       }else{
-        this.setState({'displayloginMsg': true, 'errorMessage': data.response});
+        errorMsg = (typeof data.response === 'string' ? data.response : '<p>' + Object.values(data.response).join('</p><p>') + '</p>');
+        this.setState({'displayloginMsg': true, 'errorMessage': errorMsg});
       }
     })
     .catch(() => {
@@ -47,19 +49,14 @@ class LoginForm extends React.Component{
     });
   }
 
-  displayError(){
-
-  }
-
   render(){
-    let loginMsg = this.state.displayloginMsg;
-    let errorMsg = '';
-    if(loginMsg === true){
-      errorMsg = <div>{this.state.errorMessage}</div>
+    let errorDiv = '';
+    if(this.state.displayloginMsg === true){
+      errorDiv = <div dangerouslySetInnerHTML={{ __html: this.state.errorMessage}} />
     }
     return (
       <div>
-        {errorMsg}
+        {errorDiv}
         <form className="login-form" onSubmit={this.loginSubmit}>
             <input type="text" name="username" value={this.state.username} onChange={this.updatefieldState} placeholder="Username" required />
             <input type="password" name="password" value={this.state.password} onChange={this.updatefieldState} placeholder="Password" required />
