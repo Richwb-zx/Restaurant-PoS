@@ -111,19 +111,21 @@ const User = class User{
         let unlockStatus = false;
 
         if(userDetails.locked_on !== null && userDetails.locked_on <= coolDown){
-               userModel.query().findById(userId).patch({locked: 0, locked_on: null})
+            userModel.query().findById(userId).patch({locked: 0, locked_on: null})
                 .then(()=> logger.info({"message": "Account has been unlocked due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
                 .catch(coolDownError => logger.info({"message": coolDownError, "user": "system", "namespace": 'users.inactiveaccounts.select.error'}));
-            
-                unlockStatus = true;
-
-                AuthTimeoutModel.query().delete().where('user_id', '=', userId)
-                .then(()=> logger.info({"message": "Account has been removed from timeout due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
-                .catch(coolDownDeleteError => logger.info({"message": coolDownDeleteError, "user": "system", "namespace": 'users.inactiveaccounts.delete.error'}));
+        
+            unlockStatus = true;
         }
 
         return unlockStatus;
             
+    }
+
+    clearLoginAttempts(userId){
+        AuthTimeoutModel.query().delete().where('user_id', '=', userId)
+            .then(()=> logger.info({"message": "Account has been removed from timeout due to cooldown", "user": userId, "namespace": 'users.processInactiveAccount.cooldown.unlock'}))
+            .catch(coolDownDeleteError => logger.info({"message": coolDownDeleteError, "user": "system", "namespace": 'users.clearloginattemps.delete.error'}));
     }
 
     logout(token){
