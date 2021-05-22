@@ -41,8 +41,10 @@ const Autentication = class Authentication{
             const inValidLoginCheck = await this.userService.invalidLogin(userData);
             
             return [{response: inValidLoginCheck.response, success: false},{httpStatus: 200}];
-
         }else if(bcryptToken === true){
+
+            this.userService.clearLoginAttempts(userData.id);
+
             const token = await this.userService.setSession(userData.id, userData.authorization_group);
             let response = [];
             if(token !== undefined){
